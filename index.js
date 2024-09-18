@@ -4,6 +4,7 @@ const bodyParser = require("body-parser");
 const cors = require("cors");
 const familyRoutes = require('./routes/familyRoutes.js');
 const memberRoutes = require('./routes/memberRoutes');
+const esasRoutes = require('./routes/esasRoutes.js');
 
 app.use(cors());
 app.use(bodyParser.json({limit: "100mb"}));
@@ -30,5 +31,6 @@ app.use((req,res,next) =>{
 
 app.use('/api', familyRoutes);
 app.use('/api', memberRoutes);
+app.use('/api', esasRoutes);
 
 module.exports = app;
