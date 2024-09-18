@@ -1,7 +1,7 @@
 const express = require('express');
-const { insertEsasData } = require('../controllers/esasControllers');
+const { insertEsasData, getAllEsasData } = require('../controllers/esasControllers');
 const router = express.Router();
 
-router.post('/esas',insertEsasData);
+router.post('/esas',insertEsasData).get("/esas", getAllEsasData);
 
 module.exports = router;

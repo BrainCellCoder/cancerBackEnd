@@ -5,9 +5,9 @@ const app = require("./index");
 
 const DB = process.env.DB_URI;
 mongoose.connect(DB,{
-    useNewUrlParser: true,
-  useUnifiedTopology: true,
-  serverSelectionTimeoutMS: 30000
+    // useNewUrlParser: true,
+//   useUnifiedTopology: true,
+//   serverSelectionTimeoutMS: 30000
 }).then((con) =>{
     console.log("DB connected successfully");
 }).catch((e)=>{
