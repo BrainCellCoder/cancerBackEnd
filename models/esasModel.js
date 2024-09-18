@@ -1,6 +1,10 @@
 const mongoose = require("mongoose");
 
 const esasSchema = mongoose.Schema({
+    patientName:{
+        type: String,
+        trim: true
+    },
     painAddDay:{
         type: String,
         trim: true
