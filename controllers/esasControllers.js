@@ -7,7 +7,7 @@ const insertEsasData = async (req, res) => {
         const result = await Esas.create(data);
         console.log(result)
         res.status(201).json({
-            message: 'Esas Record added successfully',
+            message: 'Record added successfully',
             data: result
         });
     } catch (error) {
@@ -24,7 +24,7 @@ const getAllEsasData = async (req, res) => {
         const result = await Esas.find({});
         console.log(result)
         res.status(201).json({
-            message: 'All Esas Record Found',
+            message: 'All Record Found',
             data: result
         });
     } catch (error) {
