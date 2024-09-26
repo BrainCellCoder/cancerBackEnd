@@ -5,6 +5,10 @@ const esasSchema = mongoose.Schema({
         type: String,
         trim: true
     },
+    patientID:{
+        type: String,
+        trim: true
+    },
     painAddDay:{
         type: String,
         trim: true
