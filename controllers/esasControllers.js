@@ -110,27 +110,71 @@ const insertEsasData = async (req, res) => {
 
 const getAllEsasData = async (req, res) => {
     try {
-        // Connect to the database
         await sql.connect(config);
 
-        const result = await sql.query`SELECT * FROM Test`;
-        
-        console.log(result);
+        // Query to get all patients and their symptoms
+        const patientsResult = await sql.query`
+            SELECT p.patientID, p.patientName, p.admissionDate, p.dischargeDate, 
+                   s.symptomType, s.addDay, s.score, s.symptomBurden
+            FROM EPROPatients AS p
+            LEFT JOIN EPROPatientSymptoms AS s ON p.patientID = s.patientID
+        `;
+
+        // Check if any patients exist
+        if (patientsResult.recordset.length === 0) {
+            return res.status(404).json({
+                message: 'No patients found.'
+            });
+        }
+
+        // Process results to group symptoms by patient
+        const patients = patientsResult.recordset.reduce((acc, row) => {
+            const patientID = row.patientID;
+
+            // If patientID is not already in the accumulator, create a new patient object
+            if (!acc[patientID]) {
+                acc[patientID] = {
+                    patientID: patientID,
+                    patientName: row.patientName,
+                    admissionDate: row.admissionDate,
+                    dischargeDate: row.dischargeDate,
+                    symptoms: []
+                };
+            }
+
+            // If symptomType exists, add the symptom to the patient's symptoms array
+            if (row.symptomType) {
+                acc[patientID].symptoms.push({
+                    symptomType: row.symptomType,
+                    addDay: row.addDay,
+                    score: row.score,
+                    symptomBurden: row.symptomBurden
+                });
+            }
+
+            return acc;
+        }, {});
+
+        // Convert the object to an array
+        const result = Object.values(patients);
+
         res.status(200).json({
-            message: 'All records found',
-            data: result.recordset // Use recordset for the results
+            message: 'Data retrieved successfully',
+            data: result
         });
+
     } catch (error) {
-        console.error('Error getting esas data:', error);
+        console.error('Error retrieving data:', error);
         res.status(500).json({
-            message: 'Error getting esas data',
+            message: 'Error retrieving data',
             error: error.message
         });
     } finally {
-        // Close the connection
         await sql.close();
     }
 };
+
+
 
 module.exports = {
     insertEsasData,
