@@ -80,7 +80,7 @@ const insertEsasData = async (req, res) => {
 
         if (existingPatient.recordset.length === 0) {
             const patientInsertResult = await sql.query`INSERT INTO EPROPatients (patientName, patientID, admissionDate, dischargeDate, enteredDate, enteredTime) 
-                VALUES (${data.patientName}, ${data.patientID.toUpperCase()}, ${data.admissionDate}, ${data.dischargeDate}, ${enteredDate}, ${enteredTime});`;
+                VALUES (${data.patientName}, ${data.patientID.toUpperCase()}, ${data.admissionDate}, ${data.dischargeDate}, ${data.enteredDate}, ${data.enteredTime});`;
              console.log('Patient inserted:', patientInsertResult.rowsAffected);
         } else {
             console.log('Patient already exists, proceeding to insert symptoms.');
