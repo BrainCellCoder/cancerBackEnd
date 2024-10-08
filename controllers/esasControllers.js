@@ -76,19 +76,29 @@ const insertEsasData = async (req, res) => {
         let result;
         await sql.connect(config);
 
+        const now = new Date();
+        const day = String(now.getDate()).padStart(2, '0');
+        const month = String(now.getMonth() + 1).padStart(2, '0'); 
+        const year = now.getFullYear();
+        const formattedDate = `${day}/${month}/${year}`;
+        const hours = String(now.getHours()).padStart(2, '0');
+        const minutes = String(now.getMinutes()).padStart(2, '0');
+        const seconds = String(now.getSeconds()).padStart(2, '0');
+        const formattedTime = `${hours}:${minutes}:${seconds}`;
+
         const existingPatient = await sql.query`SELECT * FROM EPROPatients WHERE patientID = ${data.patientID}`;
 
         if (existingPatient.recordset.length === 0) {
-            const patientInsertResult = await sql.query`INSERT INTO EPROPatients (patientName, patientID, admissionDate, dischargeDate) 
-                VALUES (${data.patientName}, ${data.patientID.toUpperCase()}, ${data.admissionDate}, ${data.dischargeDate});`;
+            const patientInsertResult = await sql.query`INSERT INTO EPROPatients (patientName, patientID, admissionDate, dischargeDate, enteredDate, enteredTime) 
+                VALUES (${data.patientName}, ${data.patientID.toUpperCase()}, ${data.admissionDate}, ${data.dischargeDate}, ${formattedDate}, ${formattedTime});`;
              console.log('Patient inserted:', patientInsertResult.rowsAffected);
         } else {
             console.log('Patient already exists, proceeding to insert symptoms.');
         }
 
         for (const symptom of data.symptoms) {
-             result = await sql.query`INSERT INTO EPROPatientSymptoms (patientID, symptomType, addDay, score, symptomBurden) 
-                VALUES (${data.patientID.trim()}, ${symptom.symptomType.trim()}, ${symptom.addDay.trim()}, ${symptom.score.trim()}, ${symptom.symptomBurden.trim()});`;
+             result = await sql.query`INSERT INTO EPROPatientSymptoms (patientID, symptomType, addDay, score, symptomBurden, enteredDate, enteredTime) 
+                VALUES (${data.patientID.trim()}, ${symptom.symptomType.trim()}, ${symptom.addDay.trim()}, ${symptom.score.trim()}, ${symptom.symptomBurden.trim()}, ${formattedDate}, ${formattedTime});`;
         }
 
         console.log('Symptoms inserted successfully.');
@@ -115,7 +125,7 @@ const getAllEsasData = async (req, res) => {
         // Query to get all patients and their symptoms
         const patientsResult = await sql.query`
             SELECT p.patientID, p.patientName, p.admissionDate, p.dischargeDate, 
-                   s.symptomType, s.addDay, s.score, s.symptomBurden
+                   s.symptomType, s.addDay, s.score, s.symptomBurden, s.enteredDate, s.enteredTime
             FROM EPROPatients AS p
             LEFT JOIN EPROPatientSymptoms AS s ON p.patientID = s.patientID
         `;
@@ -148,7 +158,9 @@ const getAllEsasData = async (req, res) => {
                     symptomType: row.symptomType,
                     addDay: row.addDay,
                     score: row.score,
-                    symptomBurden: row.symptomBurden
+                    symptomBurden: row.symptomBurden,
+                    enteredDate: row.enteredDate,
+                    enteredTime: row.enteredTime,
                 });
             }
 
@@ -189,7 +201,7 @@ const getPatientDataById = async (req, res) => {
         // Query to get a specific patient and their symptoms
         const patientResult = await sql.query`
             SELECT p.patientID, p.patientName, p.admissionDate, p.dischargeDate, 
-                   s.symptomType, s.addDay, s.score, s.symptomBurden
+                   s.symptomType, s.addDay, s.score, s.symptomBurden,s.enteredDate, s.enteredTime
             FROM EPROPatients AS p
             LEFT JOIN EPROPatientSymptoms AS s ON p.patientID = s.patientID
             WHERE p.patientID = ${patientID}
@@ -219,7 +231,9 @@ const getPatientDataById = async (req, res) => {
                     symptomType: row.symptomType,
                     addDay: row.addDay,
                     score: row.score,
-                    symptomBurden: row.symptomBurden
+                    symptomBurden: row.symptomBurden,
+                    enteredDate: row.enteredDate,
+                    enteredTime: row.enteredTime,
                 });
             }
         });
