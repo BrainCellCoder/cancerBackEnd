@@ -177,7 +177,7 @@ const getAllEsasData = async (req, res) => {
 };
 
 const getPatientDataById = async (req, res) => {
-    const patientID = req.params.id; // Assume patient ID is passed as a route parameter
+    const patientID = req.query.id; // Assume patient ID is passed as a route parameter
 
     if (!patientID) {
         return res.status(400).json({
