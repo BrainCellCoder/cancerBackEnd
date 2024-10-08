@@ -70,6 +70,26 @@ const config = require('../config');
 //     }
 // };
 
+const searchById = async (req,res) =>{
+    try{
+        const data = req.body;
+        await sql.connect(config);
+        
+        const result = await sql.query`SELECT first_name, mid_name, last_name FROM patientDetails WHERE case_no = ${data.patientID}`;
+        const p_data = result.recordset[0];
+        res.status(201).json({
+            message: 'Record Found',
+            data: p_data
+        });
+    }catch(error){
+        console.error('Error getting patient details:', error);
+        res.status(500).json({
+            message: 'Error getting patient details',
+            error: error.message
+        });
+    }
+}
+
 const insertEsasData = async (req, res) => {
     try {
         const data = req.body;
@@ -248,6 +268,7 @@ const getPatientDataById = async (req, res) => {
 
 
 module.exports = {
+    searchById,
     insertEsasData,
     getAllEsasData,
     getPatientDataById
