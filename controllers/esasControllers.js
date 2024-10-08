@@ -76,21 +76,11 @@ const insertEsasData = async (req, res) => {
         let result;
         await sql.connect(config);
 
-        const now = new Date();
-        const day = String(now.getDate()).padStart(2, '0');
-        const month = String(now.getMonth() + 1).padStart(2, '0'); 
-        const year = now.getFullYear();
-        const formattedDate = `${day}/${month}/${year}`;
-        const hours = String(now.getHours()).padStart(2, '0');
-        const minutes = String(now.getMinutes()).padStart(2, '0');
-        const seconds = String(now.getSeconds()).padStart(2, '0');
-        const formattedTime = `${hours}:${minutes}:${seconds}`;
-
         const existingPatient = await sql.query`SELECT * FROM EPROPatients WHERE patientID = ${data.patientID}`;
 
         if (existingPatient.recordset.length === 0) {
             const patientInsertResult = await sql.query`INSERT INTO EPROPatients (patientName, patientID, admissionDate, dischargeDate, enteredDate, enteredTime) 
-                VALUES (${data.patientName}, ${data.patientID.toUpperCase()}, ${data.admissionDate}, ${data.dischargeDate}, ${formattedDate}, ${formattedTime});`;
+                VALUES (${data.patientName}, ${data.patientID.toUpperCase()}, ${data.admissionDate}, ${data.dischargeDate}, ${enteredDate}, ${enteredTime});`;
              console.log('Patient inserted:', patientInsertResult.rowsAffected);
         } else {
             console.log('Patient already exists, proceeding to insert symptoms.');
@@ -98,7 +88,7 @@ const insertEsasData = async (req, res) => {
 
         for (const symptom of data.symptoms) {
              result = await sql.query`INSERT INTO EPROPatientSymptoms (patientID, symptomType, addDay, score, symptomBurden, enteredDate, enteredTime) 
-                VALUES (${data.patientID.trim()}, ${symptom.symptomType.trim()}, ${symptom.addDay.trim()}, ${symptom.score.trim()}, ${symptom.symptomBurden.trim()}, ${formattedDate}, ${formattedTime});`;
+                VALUES (${data.patientID.trim()}, ${symptom.symptomType.trim()}, ${symptom.addDay.trim()}, ${symptom.score.trim()}, ${symptom.symptomBurden.trim()}, ${symptom.enteredDate}, ${symptom.enteredTime});`;
         }
 
         console.log('Symptoms inserted successfully.');
