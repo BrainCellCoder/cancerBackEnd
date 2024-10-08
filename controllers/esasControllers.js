@@ -174,9 +174,77 @@ const getAllEsasData = async (req, res) => {
     }
 };
 
+const getPatientDataById = async (req, res) => {
+    const patientID = req.params.id; // Assume patient ID is passed as a route parameter
+
+    if (!patientID) {
+        return res.status(400).json({
+            message: 'Patient ID is required.'
+        });
+    }
+
+    try {
+        await sql.connect(config);
+
+        // Query to get a specific patient and their symptoms
+        const patientResult = await sql.query`
+            SELECT p.patientID, p.patientName, p.admissionDate, p.dischargeDate, 
+                   s.symptomType, s.addDay, s.score, s.symptomBurden
+            FROM EPROPatients AS p
+            LEFT JOIN EPROPatientSymptoms AS s ON p.patientID = s.patientID
+            WHERE p.patientID = ${patientID}
+        `;
+
+        // Check if the patient exists
+        if (patientResult.recordset.length === 0) {
+            return res.status(404).json({
+                message: 'No patient found with the provided ID.'
+            });
+        }
+
+        // Process results to group symptoms by patient
+        const row = patientResult.recordset[0];
+        const patientData = {
+            patientID: row.patientID,
+            patientName: row.patientName,
+            admissionDate: row.admissionDate,
+            dischargeDate: row.dischargeDate,
+            symptoms: []
+        };
+
+        // Add symptoms if they exist
+        patientResult.recordset.forEach(row => {
+            if (row.symptomType) {
+                patientData.symptoms.push({
+                    symptomType: row.symptomType,
+                    addDay: row.addDay,
+                    score: row.score,
+                    symptomBurden: row.symptomBurden
+                });
+            }
+        });
+
+        res.status(200).json({
+            message: 'Data retrieved successfully',
+            data: patientData
+        });
+
+    } catch (error) {
+        console.error('Error retrieving data:', error);
+        res.status(500).json({
+            message: 'Error retrieving data',
+            error: error.message
+        });
+    } finally {
+        await sql.close();
+    }
+};
+
+
 
 
 module.exports = {
     insertEsasData,
-    getAllEsasData
+    getAllEsasData,
+    getPatientDataById
 };
