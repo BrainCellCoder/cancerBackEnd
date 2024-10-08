@@ -72,11 +72,12 @@ const config = require('../config');
 
 const searchById = async (req,res) =>{
     try{
-        const data = req.body;
+        const id = req.query.id;
         await sql.connect(config);
-        
-        const result = await sql.query`SELECT first_name, mid_name, last_name FROM patientDetails WHERE case_no = ${data.patientID}`;
+        console.log(id)
+        const result = await sql.query`SELECT first_name, mid_name, last_name FROM patientDetails WHERE case_no = ${id}`;
         const p_data = result.recordset[0];
+        console.log(p_data)
         res.status(201).json({
             message: 'Record Found',
             data: p_data
