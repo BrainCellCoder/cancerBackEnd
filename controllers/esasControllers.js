@@ -78,6 +78,12 @@ const searchById = async (req,res) =>{
         const result = await sql.query`SELECT first_name, mid_name, last_name FROM patientDetails WHERE case_no = ${id}`;
         const p_data = result.recordset[0];
         console.log(p_data)
+        if (!p_data) {
+            return res.status(404).json({
+                message: 'Patient Not Found',
+                success: false
+            });
+        }
         res.status(201).json({
             message: 'Record Found',
             data: p_data
