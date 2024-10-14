@@ -91,8 +91,8 @@ const searchById = async (req,res) =>{
     }catch(error){
         console.error('Error getting patient details:', error);
         res.status(500).json({
-            message: 'Error getting patient details',
-            error: error.message
+            success: false,
+            message: 'Error getting patient details' + error.message,
         });
     }
 }
