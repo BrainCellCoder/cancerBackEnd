@@ -89,10 +89,10 @@ const login = async (req,res) =>{
             data: p_data
         });
     }catch(error){
-        console.error('Error getting patient details:', error);
+        console.error('Error getting patient details: ', error);
         res.status(500).json({
             success: false,
-            message: 'Error getting patient details' + error.message,
+            message: 'Error getting patient details: ' + error.message,
         });
     }
 }
