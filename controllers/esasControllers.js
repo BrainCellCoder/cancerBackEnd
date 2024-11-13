@@ -70,17 +70,18 @@ const config = require('../config');
 //     }
 // };
 
-const searchById = async (req,res) =>{
+const login = async (req,res) =>{
     try{
-        const id = req.query.id;
+        const {patientID, password} = req.body;
+        console.log(patientID, password)
         await sql.connect(config);
         console.log(id)
-        const result = await sql.query`SELECT first_name, mid_name, last_name FROM patientDetails WHERE case_no = ${id}`;
+        const result = await sql.query`SELECT first_name, mid_name, last_name FROM patientDetails WHERE case_no = ${patientID} and eproPassword = ${password}`;
         const p_data = result.recordset[0];
         console.log(p_data)
         if (!p_data) {
             return res.status(404).json({
-                message: 'Patient Not Found',
+                message: 'ERROR: Wrong ID or Password',
                 success: false
             });
         }
@@ -275,7 +276,7 @@ const getPatientDataById = async (req, res) => {
 
 
 module.exports = {
-    searchById,
+    login,
     insertEsasData,
     getAllEsasData,
     getPatientDataById
