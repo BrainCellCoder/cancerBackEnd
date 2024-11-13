@@ -75,7 +75,6 @@ const login = async (req,res) =>{
         const {patientID, password} = req.body;
         console.log(patientID, password)
         await sql.connect(config);
-        console.log(id)
         const result = await sql.query`SELECT first_name, mid_name, last_name FROM patientDetails WHERE case_no = ${patientID} and eproPassword = ${password}`;
         const p_data = result.recordset[0];
         console.log(p_data)
