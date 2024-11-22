@@ -100,6 +100,12 @@ const login = async (req,res) =>{
 const insertEsasData = async (req, res) => {
     try {
         const data = req.body;
+        if(!data.patientID || !data.password){
+            return res.status(404).json({
+                message: 'ERROR: Password and ID is required to perform this operation',
+                success: false
+            });
+        }
         let result;
         await sql.connect(config);
 
