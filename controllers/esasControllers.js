@@ -110,8 +110,7 @@ const insertEsasData = async (req, res) => {
         await sql.connect(config);
 
         const authResult = await sql.query`SELECT * FROM patientDetails WHERE case_no = ${data.patientID} and eproPassword = ${data.password}`;
-        const p_data = authResult.recordset[0];
-        if (!p_data) {
+        if (!authResult.recordset || authResult.recordset.length === 0) {
             return res.status(404).json({
                 message: 'ERROR: Please login first',
                 success: false
