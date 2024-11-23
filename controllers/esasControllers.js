@@ -285,12 +285,63 @@ const getPatientDataById = async (req, res) => {
     }
 };
 
+const getPassword = async(req,res) =>{
+    const caseno = req.query.caseno;
+  if (!caseno) {
+    return res.status(400).json({ message: "Invalid input: Case number is required." });
+  }
+  try {
+    await sql.connect(config);
+    const result = await sql.query`SELECT eproPassword FROM dbo.patientDetails WHERE CASE_NO = ${caseno}`;
+    if (result.recordset.length === 0) {
+      return res.status(404).json({ message: "Password not found for this case number." });
+    }
 
+    const password = result.recordset[0].eproPassword;
+    return res.status(200).json({ password: password });
+  } catch (err) {
+    return res.status(500).json({ message: "Error: " + err.message });
+  } finally {
+    await sql.close();
+  }
+}
+
+const createPassword = async (req,res) =>{
+    const { newPassword, caseno } = req.body;
+
+    if (!newPassword || !caseno) {
+      return res.status(400).json({ message: "Invalid input" });
+    }
+  
+    try {
+      await sql.connect(config);
+  
+      const result = await sql.query`SELECT eproPassword FROM dbo.patientDetails WHERE CASE_NO = ${caseno}`;
+  
+      if (result.recordset.length > 0 && result.recordset[0].eproPassword) {
+        return res.status(400).json({ message: "Password already exists for this case number." });
+      }
+  
+      const updateResult = await sql.query`UPDATE dbo.patientDetails SET eproPassword = ${newPassword} WHERE CASE_NO = ${caseno}`;
+  
+      if (updateResult.rowsAffected > 0) {
+        return res.status(200).json({ message: "Password updated successfully." });
+      } else {
+        return res.status(400).json({ message: "Error updating password. Case number may not exist." });
+      }
+    } catch (err) {
+      return res.status(500).json({ message: "Error: " + err.message });
+    } finally {
+      await sql.close();
+    }
+}
 
 
 module.exports = {
     login,
     insertEsasData,
     getAllEsasData,
-    getPatientDataById
+    getPatientDataById,
+    createPassword,
+    getPassword
 };
